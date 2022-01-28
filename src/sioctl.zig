@@ -27,11 +27,11 @@ pub const sioctl = opaque {
         sioctl_close(self);
     }
 
-    pub fn ondesc(self: *Self, callback: fn (arg: ?*c_void, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?*c_void) c_int {
+    pub fn ondesc(self: *Self, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int {
         return sioctl_ondesc(self, callback, arg);
     }
 
-    pub fn onval(self: *Self, callback: fn (arg: ?*c_void, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?*c_void) c_int {
+    pub fn onval(self: *Self, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int {
         return sioctl_onval(self, callback, arg);
     }
 
@@ -123,8 +123,8 @@ pub const sioctl_type = enum(c_int) {
 
 pub extern fn sioctl_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*sioctl;
 pub extern fn sioctl_close(hdl: *sioctl) void;
-pub extern fn sioctl_ondesc(hdl: *sioctl, callback: fn (arg: ?*c_void, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?*c_void) c_int;
-pub extern fn sioctl_onval(hdl: *sioctl, callback: fn (arg: ?*c_void, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?*c_void) c_int;
+pub extern fn sioctl_ondesc(hdl: *sioctl, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
+pub extern fn sioctl_onval(hdl: *sioctl, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
 pub extern fn sioctl_setval(hdl: *sioctl, addr: c_uint, val: c_uint) c_int;
 pub extern fn sioctl_nfds(hdl: *sioctl) c_int;
 pub extern fn sioctl_pollfd(hdl: *sioctl, pfd: [*]pollfd, events: c_int) c_int;

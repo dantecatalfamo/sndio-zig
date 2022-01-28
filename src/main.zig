@@ -16,7 +16,7 @@ pub fn main() !void {
     _ = try std.io.getStdIn().reader().readByte();
 }
 
-fn callback(arg: ?*c_void, desc: ?*siodsc, val: c_int) callconv(.C) void {
+fn callback(arg: ?[*c]anyopaque, desc: ?*siodsc, val: c_int) callconv(.C) void {
     debug.print("\n=== Called ===\n", .{});
     debug.print("arg: {any}\n", .{ arg });
     if (desc) |dsc| {
