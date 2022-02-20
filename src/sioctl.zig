@@ -181,11 +181,11 @@ pub const sio_hdl = opaque {
         return sio_onmove(self, callback, arg);
     }
 
-    pub fn write(self: *Self, addr: [*c]anyopaque, nbytes: usize) usize {
+    pub fn write(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
         return sio_write(self, addr, nbytes);
     }
 
-    pub fn read(self: *Self, addr: [*c]anyopaque, nbytes: usize) usize {
+    pub fn read(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
         return sio_read(self, addr, nbytes);
     }
 
@@ -316,8 +316,8 @@ pub extern "sndio" fn sio_setpar(hdl: *sio_hdl, par: *sio_par) c_int;
 pub extern "sndio" fn sio_getpar(hdl: *sio_hdl, par: *sio_par) c_int;
 pub extern "sndio" fn sio_getcap(hdl: *sio_hdl, cap: *sio_cap) c_int;
 pub extern "sndio" fn sio_onmove(hdl: *sio_hdl, callback: fn (arg: ?[*c]anyopaque, delta: c_int) callconv(.C) void, arg: ?[*c]anyopaque) void;
-pub extern "sndio" fn sio_write(hdl: *sio_hdl, addr: [*c]anyopaque, nbytes: usize) usize;
-pub extern "sndio" fn sio_read(hdl: *sio_hdl, addr: [*c]anyopaque, nbytes: usize) usize;
+pub extern "sndio" fn sio_write(hdl: *sio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
+pub extern "sndio" fn sio_read(hdl: *sio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
 pub extern "sndio" fn sio_start(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_stop(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_nfds(hdl: *sio_hdl) c_int;
@@ -326,3 +326,63 @@ pub extern "sndio" fn sio_revents(hdl: *sio_hdl, pfd: [*]pollfd) c_int;
 pub extern "sndio" fn sio_eof(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_setvol(hdl: *sio_hdl, vol: c_uint) c_int;
 pub extern "sndio" fn sio_onvol(hdl: *sio_hdl, fn (arg: [*c]anyopaque, vol: c_uint) callconv(.C) void , arg: [*c]anyopaque) c_int;
+
+// midi
+
+pub const mio_hdl = opaque {
+    pub const devany = "default";
+    const Self = @This();
+
+    pub fn open(name: ?[*:0]const u8, mode: c_uint, non_blocking_io: bool) !*Self {
+        const name_str = blk: {
+            if (name) |nm| {
+                break :blk nm;
+            }
+            break :blk devany;
+        };
+        const mode_int = mode.val();
+        const nbio_flag = @boolToInt(non_blocking_io);
+        const maybe_hdl = mio_open(name_str, mode_int, nbio_flag);
+        if (maybe_hdl) |hdl| {
+            return hdl;
+        }
+        return error.OpenError;
+    }
+
+    pub fn close(self: *Self) void {
+        return mio_close(self);
+    }
+
+    pub fn write(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
+        return mio_write(self, addr, nbytes);
+    }
+
+    pub fn read(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
+        return mio_read(self, addr, nbytes);
+    }
+
+    pub fn nfds(self: *Self) c_int {
+        return mio_nfds(self);
+    }
+
+    pub fn pollfd(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
+        return mio_pollfd(self, pfd, events);
+    }
+
+    pub fn revents(self: *Self, pdf: [*]pollfd) c_int {
+        return mio_revents(self, pfd);
+    }
+
+    pub fn eof(self: *Self) c_int {
+        return mio_eof(self);
+    }
+};
+
+pub extern fn mio_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*mio_hdl;
+pub extern fn mio_close(hdl: *mio_hdl) void;
+pub extern fn mio_write(hdl: *mio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
+pub extern fn mio_read(hdl: *mio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
+pub extern fn mio_nfds(hdl: *mio_hdl) c_int;
+pub extern fn mio_pollfd(hdl: *mio_hdl, pfd: [*]pollfd, events: c_int) c_int;
+pub extern fn mio_revents(hdl: *mio_hdl, pdf: [*]pollfd) c_int;
+pub extern fn mio_eof(hdl: *mio_hdl) c_int;
