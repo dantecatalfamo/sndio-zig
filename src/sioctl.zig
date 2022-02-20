@@ -1,13 +1,13 @@
 const std = @import("std");
 const mem = std.mem;
 const debug = std.debug;
-const pollfd = std.c.openbsd.pollfd;
+const pollfd = std.os.system.pollfd;
 
-pub const sioctl = opaque {
+pub const sioctl_hdl = opaque {
     pub const devany = "default";
     const Self = @This();
 
-    pub fn open(name: ?[*:0]const u8, mode: sioctl_mode, non_blocking_io: bool) !*sioctl {
+    pub fn open(name: ?[*:0]const u8, mode: sioctl_mode, non_blocking_io: bool) !*sioctl_hdl {
         const name_str = blk: {
             if (name) |nm| {
                 break :blk nm;
@@ -72,15 +72,6 @@ pub const sioctl_mode = struct {
     }
 };
 
-test "sioctl_mode" {
-    const z = (sioctl_mode{}).val();
-    try std.testing.expectEqual(z, 0);
-    const r = (sioctl_mode{ .read = true }).val();
-    try std.testing.expectEqual(r, sioctl_mode.read_val);
-    const w = (sioctl_mode{ .write = true }).val();
-    try std.testing.expectEqual(w, sioctl_mode.write_val);
-}
-
 pub const sioctl_desc = extern struct {
     addr: c_uint,
     @"type": sioctl_type,
@@ -121,12 +112,12 @@ pub const sioctl_type = enum(c_int) {
     sel = 6
 };
 
-pub extern fn sioctl_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*sioctl;
-pub extern fn sioctl_close(hdl: *sioctl) void;
-pub extern fn sioctl_ondesc(hdl: *sioctl, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
-pub extern fn sioctl_onval(hdl: *sioctl, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
-pub extern fn sioctl_setval(hdl: *sioctl, addr: c_uint, val: c_uint) c_int;
-pub extern fn sioctl_nfds(hdl: *sioctl) c_int;
-pub extern fn sioctl_pollfd(hdl: *sioctl, pfd: [*]pollfd, events: c_int) c_int;
-pub extern fn sioctl_revents(hdl: *sioctl, pfd: [*]pollfd) c_int;
-pub extern fn sioctl_eof(hdl: *sioctl) c_int;
+pub extern fn sioctl_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*sioctl_hdl;
+pub extern fn sioctl_close(hdl: *sioctl_hdl) void;
+pub extern fn sioctl_ondesc(hdl: *sioctl_hdl, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
+pub extern fn sioctl_onval(hdl: *sioctl_hdl, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
+pub extern fn sioctl_setval(hdl: *sioctl_hdl, addr: c_uint, val: c_uint) c_int;
+pub extern fn sioctl_nfds(hdl: *sioctl_hdl) c_int;
+pub extern fn sioctl_pollfd(hdl: *sioctl_hdl, pfd: [*]pollfd, events: c_int) c_int;
+pub extern fn sioctl_revents(hdl: *sioctl_hdl, pfd: [*]pollfd) c_int;
+pub extern fn sioctl_eof(hdl: *sioctl_hdl) c_int;
