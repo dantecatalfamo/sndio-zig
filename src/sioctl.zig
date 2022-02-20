@@ -9,7 +9,7 @@ pub const sioctl_hdl = opaque {
     pub const devany = "default";
     const Self = @This();
 
-    pub fn open(name: ?[*:0]const u8, mode: sio_mode, non_blocking_io: bool) !*sioctl_hdl {
+    pub fn open(name: ?[*:0]const u8, mode: sioctl_mode, non_blocking_io: bool) !*sioctl_hdl {
         const name_str = blk: {
             if (name) |nm| {
                 break :blk nm;
@@ -58,7 +58,7 @@ pub const sioctl_hdl = opaque {
     }
 };
 
-pub const sio_mode = struct {
+pub const sioctl_mode = struct {
     read: bool = false,
     write: bool = false,
 
@@ -145,7 +145,7 @@ pub const sio_hdl = opaque {
     pub const devany = "default";
     const Self = @This();
 
-    pub fn open(name: ?[*:0]const u8, mode: c_uint, non_blocking_io: bool) !*Self {
+    pub fn open(name: ?[*:0]const u8, mode: sio_mode, non_blocking_io: bool) !*Self {
         const name_str = blk: {
             if (name) |nm| {
                 break :blk nm;
@@ -219,6 +219,22 @@ pub const sio_hdl = opaque {
 
     pub fn onvol(self: *Self, callback: fn (arg: [*c]anyopaque, vol: c_uint) callconv(.C) void , arg: [*c]anyopaque) c_int {
         return sio_onvol(self, callback, arg);
+    }
+};
+
+pub const sio_mode = struct {
+    play: bool = false,
+    record: bool = false,
+
+    const play_val: c_uint = 1;
+    const record_val: c_uint = 2;
+
+    const Self = @This();
+
+    pub fn val(self: Self) c_uint {
+        const p = if (self.play) play_val else 0;
+        const r = if (self.record) record_val else 0;
+        return p | r;
     }
 };
 
@@ -333,7 +349,7 @@ pub const mio_hdl = opaque {
     pub const devany = "default";
     const Self = @This();
 
-    pub fn open(name: ?[*:0]const u8, mode: c_uint, non_blocking_io: bool) !*Self {
+    pub fn open(name: ?[*:0]const u8, mode: mio_mode, non_blocking_io: bool) !*Self {
         const name_str = blk: {
             if (name) |nm| {
                 break :blk nm;
@@ -377,6 +393,23 @@ pub const mio_hdl = opaque {
         return mio_eof(self);
     }
 };
+
+pub const mio_mode = struct {
+    out: bool = false,
+    in: bool = false,
+
+    const out_val: c_uint = 4;
+    const in_val: c_uint = 8;
+
+    const Self = @This();
+
+    pub fn val(self: Self) c_uint {
+        const o = if (self.out) out_val else 0;
+        const i = if (self.in) in_val else 0;
+        return o | i;
+    }
+};
+
 
 pub extern fn mio_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*mio_hdl;
 pub extern fn mio_close(hdl: *mio_hdl) void;
