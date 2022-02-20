@@ -1,12 +1,11 @@
 const std = @import("std");
 const mem = std.mem;
 const debug = std.debug;
-const sioctl = @import("./sioctl.zig");
-const sctl = sioctl.sioctl;
-const siodsc = sioctl.sioctl_desc;
+const sndio = @import("./sndio.zig");
+const siodsc = sndio.sioctl_desc;
 
 pub fn main() !void {
-    var sio = try sctl.open(null, .{ .read = true, .write = true }, false);
+    var sio = try sndio.sioctl_open(null, .{ .read = true, .write = true }, false);
     defer sio.close();
     debug.print("sio: {p}\n", .{ sio });
 
