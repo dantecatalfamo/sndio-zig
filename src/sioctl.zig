@@ -7,6 +7,8 @@ const pollfd = std.os.system.pollfd;
 
 pub const sioctl_hdl = opaque {
     pub const devany = "default";
+    pub const maxvol: c_int = 127;
+
     const Self = @This();
 
     pub fn open(name: ?[*:0]const u8, mode: sioctl_mode, non_blocking_io: bool) !*sioctl_hdl {
@@ -37,7 +39,7 @@ pub const sioctl_hdl = opaque {
         return sioctl_onval(self, callback, arg);
     }
 
-    pub fn setval(self: *Self, addr: c_int, val: c_int) c_int {
+    pub fn setval(self: *Self, addr: c_uint, val: c_uint) c_int {
         return sioctl_setval(self, addr, val);
     }
 
@@ -143,6 +145,7 @@ pub extern "sndio" fn sioctl_eof(hdl: *sioctl_hdl) c_int;
 
 pub const sio_hdl = opaque {
     pub const devany = "default";
+    pub const maxvol: c_uint = 127;
     const Self = @This();
 
     pub fn open(name: ?[*:0]const u8, mode: sio_mode, non_blocking_io: bool) !*Self {
