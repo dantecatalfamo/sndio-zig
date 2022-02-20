@@ -47,7 +47,7 @@ pub const sioctl_hdl = opaque {
         return sioctl_nfds(self);
     }
 
-    pub fn pollfd(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
+    pub fn pollfds(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
         return sioctl_pollfd(self, pfd, events);
     }
 
@@ -204,7 +204,7 @@ pub const sio_hdl = opaque {
         return sio_nfds(self);
     }
 
-    pub fn pollfd(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
+    pub fn pollfds(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
         return sio_pollfd(self, pfd, events);
     }
 
@@ -283,7 +283,7 @@ const xrun_error = enum (c_uint) {
 };
 
 /// capabilities of a stream
-pub const sio_cap: extern struct {
+pub const sio_cap = extern struct {
     enc: [8]sio_enc,
     /// allowed values for rchan
     rchan: [8]c_uint,
@@ -299,7 +299,7 @@ pub const sio_cap: extern struct {
 };
 
 /// allowed sample encodings
-pub const sio_enc: extern struct {
+pub const sio_enc = extern struct {
     bits: c_uint,
     bps: c_uint,
     sig: c_uint,
@@ -384,11 +384,11 @@ pub const mio_hdl = opaque {
         return mio_nfds(self);
     }
 
-    pub fn pollfd(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
+    pub fn pollfds(self: *Self, pfd: [*]pollfd, events: c_int) c_int {
         return mio_pollfd(self, pfd, events);
     }
 
-    pub fn revents(self: *Self, pdf: [*]pollfd) c_int {
+    pub fn revents(self: *Self, pfd: [*]pollfd) c_int {
         return mio_revents(self, pfd);
     }
 
