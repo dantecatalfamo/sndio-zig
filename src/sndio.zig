@@ -172,12 +172,12 @@ pub const sio_hdl = opaque {
         return sio_onmove(self, callback, arg);
     }
 
-    pub fn write(self: *Self, bytes: []const u8) usize {
-        return sio_write(self, bytes, bytes.len);
+    pub fn write(self: *Self, addr: *const anyopaque, nbytes: usize) usize {
+        return sio_write(self, addr, nbytes);
     }
 
-    pub fn read(self: *Self, bytes: []u8) usize {
-        return sio_read(self, bytes, bytes.len);
+    pub fn read(self: *Self, addr: *anyopaque, nbytes: usize) usize {
+        return sio_read(self, addr, nbytes);
     }
 
     pub fn start(self: *Self) c_int {
@@ -349,12 +349,12 @@ pub const mio_hdl = opaque {
         return mio_close(self);
     }
 
-    pub fn write(self: *Self, bytes: []const u8) usize {
-        return mio_write(self, bytes, bytes.len);
+    pub fn write(self: *Self, addr: *const anyopaque, nbytes: usize) usize {
+        return mio_write(self, addr, nbytes);
     }
 
-    pub fn read(self: *Self, bytes: []u8) usize {
-        return mio_read(self, bytes, bytes.len);
+    pub fn read(self: *Self, addr: *anyopaque, nbytes: usize) usize {
+        return mio_read(self, addr, nbytes);
     }
 
     pub fn nfds(self: *Self) c_int {
