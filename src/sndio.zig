@@ -18,9 +18,8 @@ pub const sioctl_hdl = opaque {
             }
             break :blk devany;
         };
-        const mode_int = mode.val();
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = sioctl_open(name_str, mode_int, nbio_flag);
+        const maybe_hdl = sioctl_open(name_str, mode, nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
@@ -60,20 +59,10 @@ pub const sioctl_hdl = opaque {
     }
 };
 
-pub const sioctl_mode = struct {
-    read: bool = false,
-    write: bool = false,
-
-    const read_val: c_uint = 0x100;
-    const write_val: c_uint = 0x200;
-
-    const Self = @This();
-
-    pub fn val(self: Self) c_uint {
-        const r = if (self.read) read_val else 0;
-        const w = if (self.write) write_val else 0;
-        return r | w;
-    }
+pub const sioctl_mode = enum(c_uint) {
+    read = 0x100,
+    write = 0x200,
+    read_write = 0x100 | 0x200,
 };
 
 pub const sioctl_desc = extern struct {
@@ -155,9 +144,8 @@ pub const sio_hdl = opaque {
             }
             break :blk devany;
         };
-        const mode_int = mode.val();
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = sio_open(name_str, mode_int, nbio_flag);
+        const maybe_hdl = sio_open(name_str, mode, nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
@@ -225,20 +213,10 @@ pub const sio_hdl = opaque {
     }
 };
 
-pub const sio_mode = struct {
-    play: bool = false,
-    record: bool = false,
-
-    const play_val: c_uint = 1;
-    const record_val: c_uint = 2;
-
-    const Self = @This();
-
-    pub fn val(self: Self) c_uint {
-        const p = if (self.play) play_val else 0;
-        const r = if (self.record) record_val else 0;
-        return p | r;
-    }
+pub const sio_mode = enum(c_uint) {
+    play = 1,
+    record = 2,
+    play_record = 1 | 2,
 };
 
 /// parameters of a full-duplex stream
@@ -359,9 +337,8 @@ pub const mio_hdl = opaque {
             }
             break :blk devany;
         };
-        const mode_int = mode.val();
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = mio_open(name_str, mode_int, nbio_flag);
+        const maybe_hdl = mio_open(name_str, mode, nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
@@ -397,20 +374,10 @@ pub const mio_hdl = opaque {
     }
 };
 
-pub const mio_mode = struct {
-    out: bool = false,
-    in: bool = false,
-
-    const out_val: c_uint = 4;
-    const in_val: c_uint = 8;
-
-    const Self = @This();
-
-    pub fn val(self: Self) c_uint {
-        const o = if (self.out) out_val else 0;
-        const i = if (self.in) in_val else 0;
-        return o | i;
-    }
+pub const mio_mode = enum(c_uint) {
+    out = 4,
+    in = 8,
+    out_in = 4 | 8,
 };
 
 
