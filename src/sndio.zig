@@ -389,3 +389,8 @@ pub extern fn mio_nfds(hdl: *mio_hdl) c_int;
 pub extern fn mio_pollfd(hdl: *mio_hdl, pfd: [*]pollfd, events: c_int) c_int;
 pub extern fn mio_revents(hdl: *mio_hdl, pdf: [*]pollfd) c_int;
 pub extern fn mio_eof(hdl: *mio_hdl) c_int;
+
+
+test "ref all decls" {
+    std.testing.refAllDecls(@This());
+}
