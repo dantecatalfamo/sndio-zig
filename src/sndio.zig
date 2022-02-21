@@ -19,7 +19,7 @@ pub const sioctl_hdl = opaque {
             break :blk devany;
         };
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = sioctl_open(name_str, mode, nbio_flag);
+        const maybe_hdl = sioctl_open(name_str, @enumToInt(mode), nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
@@ -145,7 +145,7 @@ pub const sio_hdl = opaque {
             break :blk devany;
         };
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = sio_open(name_str, mode, nbio_flag);
+        const maybe_hdl = sio_open(name_str, @enumToInt(mode), nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
@@ -338,7 +338,7 @@ pub const mio_hdl = opaque {
             break :blk devany;
         };
         const nbio_flag = @boolToInt(non_blocking_io);
-        const maybe_hdl = mio_open(name_str, mode, nbio_flag);
+        const maybe_hdl = mio_open(name_str, @enumToInt(mode), nbio_flag);
         if (maybe_hdl) |hdl| {
             return hdl;
         }
