@@ -30,11 +30,11 @@ pub const sioctl_hdl = opaque {
         sioctl_close(self);
     }
 
-    pub fn ondesc(self: *Self, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int {
+    pub fn ondesc(self: *Self, callback: fn (arg: ?*anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?*anyopaque) c_int {
         return sioctl_ondesc(self, callback, arg);
     }
 
-    pub fn onval(self: *Self, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int {
+    pub fn onval(self: *Self, callback: fn (arg: ?*anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?*anyopaque) c_int {
         return sioctl_onval(self, callback, arg);
     }
 
@@ -122,8 +122,8 @@ pub const sioctl_type = enum(c_int) {
 
 pub extern "sndio" fn sioctl_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*sioctl_hdl;
 pub extern "sndio" fn sioctl_close(hdl: *sioctl_hdl) void;
-pub extern "sndio" fn sioctl_ondesc(hdl: *sioctl_hdl, callback: fn (arg: ?[*c]anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
-pub extern "sndio" fn sioctl_onval(hdl: *sioctl_hdl, callback: fn (arg: ?[*c]anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?[*c]anyopaque) c_int;
+pub extern "sndio" fn sioctl_ondesc(hdl: *sioctl_hdl, callback: fn (arg: ?*anyopaque, desc: ?*sioctl_desc, val: c_int) callconv(.C) void, arg: ?*anyopaque) c_int;
+pub extern "sndio" fn sioctl_onval(hdl: *sioctl_hdl, callback: fn (arg: ?*anyopaque, addr: c_uint, val: c_uint) callconv(.C) void, arg: ?*anyopaque) c_int;
 pub extern "sndio" fn sioctl_setval(hdl: *sioctl_hdl, addr: c_uint, val: c_uint) c_int;
 pub extern "sndio" fn sioctl_nfds(hdl: *sioctl_hdl) c_int;
 pub extern "sndio" fn sioctl_pollfd(hdl: *sioctl_hdl, pfd: [*]pollfd, events: c_int) c_int;
@@ -168,16 +168,16 @@ pub const sio_hdl = opaque {
         return sio_getcap(self, cap);
     }
 
-    pub fn onmove(self: *Self, callback: fn (arg: ?[*c]anyopaque, delta: c_int) callconv(.C) void, arg: ?[*c]anyopaque) void {
+    pub fn onmove(self: *Self, callback: fn (arg: ?*anyopaque, delta: c_int) callconv(.C) void, arg: ?*anyopaque) void {
         return sio_onmove(self, callback, arg);
     }
 
-    pub fn write(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
-        return sio_write(self, addr, nbytes);
+    pub fn write(self: *Self, bytes: []const u8) usize {
+        return sio_write(self, bytes, bytes.len);
     }
 
-    pub fn read(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
-        return sio_read(self, addr, nbytes);
+    pub fn read(self: *Self, bytes: []u8) usize {
+        return sio_read(self, bytes, bytes.len);
     }
 
     pub fn start(self: *Self) c_int {
@@ -208,7 +208,7 @@ pub const sio_hdl = opaque {
         return sio_setvol(self, vol);
     }
 
-    pub fn onvol(self: *Self, callback: fn (arg: [*c]anyopaque, vol: c_uint) callconv(.C) void , arg: [*c]anyopaque) c_int {
+    pub fn onvol(self: *Self, callback: fn (arg: *anyopaque, vol: c_uint) callconv(.C) void , arg: *anyopaque) c_int {
         return sio_onvol(self, callback, arg);
     }
 };
@@ -312,9 +312,9 @@ pub extern "sndio" fn sio_close(hdl: *sio_hdl) void;
 pub extern "sndio" fn sio_setpar(hdl: *sio_hdl, par: *sio_par) c_int;
 pub extern "sndio" fn sio_getpar(hdl: *sio_hdl, par: *sio_par) c_int;
 pub extern "sndio" fn sio_getcap(hdl: *sio_hdl, cap: *sio_cap) c_int;
-pub extern "sndio" fn sio_onmove(hdl: *sio_hdl, callback: fn (arg: ?[*c]anyopaque, delta: c_int) callconv(.C) void, arg: ?[*c]anyopaque) void;
-pub extern "sndio" fn sio_write(hdl: *sio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
-pub extern "sndio" fn sio_read(hdl: *sio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
+pub extern "sndio" fn sio_onmove(hdl: *sio_hdl, callback: fn (arg: ?*anyopaque, delta: c_int) callconv(.C) void, arg: ?*anyopaque) void;
+pub extern "sndio" fn sio_write(hdl: *sio_hdl, addr: *const anyopaque, nbytes: usize) usize;
+pub extern "sndio" fn sio_read(hdl: *sio_hdl, addr: *anyopaque, nbytes: usize) usize;
 pub extern "sndio" fn sio_start(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_stop(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_nfds(hdl: *sio_hdl) c_int;
@@ -322,7 +322,7 @@ pub extern "sndio" fn sio_pollfd(hdl: *sio_hdl, pfd: [*]pollfd, events: c_int) c
 pub extern "sndio" fn sio_revents(hdl: *sio_hdl, pfd: [*]pollfd) c_int;
 pub extern "sndio" fn sio_eof(hdl: *sio_hdl) c_int;
 pub extern "sndio" fn sio_setvol(hdl: *sio_hdl, vol: c_uint) c_int;
-pub extern "sndio" fn sio_onvol(hdl: *sio_hdl, fn (arg: [*c]anyopaque, vol: c_uint) callconv(.C) void , arg: [*c]anyopaque) c_int;
+pub extern "sndio" fn sio_onvol(hdl: *sio_hdl, fn (arg: *anyopaque, vol: c_uint) callconv(.C) void , arg: *anyopaque) c_int;
 
 // midi
 
@@ -349,12 +349,12 @@ pub const mio_hdl = opaque {
         return mio_close(self);
     }
 
-    pub fn write(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
-        return mio_write(self, addr, nbytes);
+    pub fn write(self: *Self, bytes: []const u8) usize {
+        return mio_write(self, bytes, bytes.len);
     }
 
-    pub fn read(self: *Self, addr: [*]anyopaque, nbytes: usize) usize {
-        return mio_read(self, addr, nbytes);
+    pub fn read(self: *Self, bytes: []u8) usize {
+        return mio_read(self, bytes, bytes.len);
     }
 
     pub fn nfds(self: *Self) c_int {
@@ -383,8 +383,8 @@ pub const mio_mode = enum(c_uint) {
 
 pub extern fn mio_open(name: [*:0]const u8, mode: c_uint, nbio_flag: c_int) ?*mio_hdl;
 pub extern fn mio_close(hdl: *mio_hdl) void;
-pub extern fn mio_write(hdl: *mio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
-pub extern fn mio_read(hdl: *mio_hdl, addr: [*]anyopaque, nbytes: usize) usize;
+pub extern fn mio_write(hdl: *mio_hdl, addr: *const anyopaque, nbytes: usize) usize;
+pub extern fn mio_read(hdl: *mio_hdl, addr: *anyopaque, nbytes: usize) usize;
 pub extern fn mio_nfds(hdl: *mio_hdl) c_int;
 pub extern fn mio_pollfd(hdl: *mio_hdl, pfd: [*]pollfd, events: c_int) c_int;
 pub extern fn mio_revents(hdl: *mio_hdl, pdf: [*]pollfd) c_int;
@@ -393,4 +393,7 @@ pub extern fn mio_eof(hdl: *mio_hdl) c_int;
 
 test "ref all decls" {
     std.testing.refAllDecls(@This());
+    std.testing.refAllDecls(sio_hdl);
+    std.testing.refAllDecls(sioctl_hdl);
+    std.testing.refAllDecls(mio_hdl);
 }
