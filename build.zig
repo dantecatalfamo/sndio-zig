@@ -7,10 +7,12 @@ pub fn build(b: *std.build.Builder) void {
 
     const lib = b.addStaticLibrary("sndio", "src/sndio.zig");
     lib.setBuildMode(mode);
+    lib.linkSystemLibrary("sndio");
     lib.install();
 
     const main_tests = b.addTest("src/sndio.zig");
     main_tests.setBuildMode(mode);
+    main_tests.linkSystemLibrary("sndio");
 
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&main_tests.step);
