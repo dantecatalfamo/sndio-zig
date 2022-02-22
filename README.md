@@ -1,7 +1,7 @@
 # sndio-zig
 [sndio](https://sndio.org/) bindings for zig
 
-Both procedural and object-oriented methods
+Provides both native bindings and a zig wrapper
 ```zig
 hdl = sio_open(...)
 
