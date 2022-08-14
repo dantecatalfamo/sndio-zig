@@ -9,7 +9,7 @@ sio_write(hdl, arr, 5)
 hdl.write(arr, 5)
 ```
 
-# Importing
+## Importing
 ```zig
 const addSndio = @import("sndio-zig/build.zig").addSndio;
 
